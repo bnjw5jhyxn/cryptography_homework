@@ -1,0 +1,57 @@
+\def\MOD{\enspace{\rm MOD}\enspace}
+\centerline{Steve Hsu\hfill homework 1}
+\item{1.} I love the name of honor.
+\bigskip
+\item{2.} ``EVIRE'' is ``river'' shifted by thirteen
+and ``arena'' shifted by four, so both possibilities are valid
+and the message is ambiguous without the key.
+\bigskip
+\item{3.} a. $4321 = 166(26) + 5 \Rightarrow 4321 \MOD 26 = 5$
+\medskip
+\item{} b. $-45 = -6(8) + 3 \Rightarrow -45 \MOD 8 = 3$
+\medskip
+\item{} c. $111 = 1(62) + 49 \Rightarrow 111 \MOD 62 = 49$
+\medskip
+\item{} d. $-63 = -9(7) + 0 \Rightarrow -63 \MOD 7 = 0$
+\medskip
+\item{} e. $186 = 46(4) + 2 \Rightarrow 186 \MOD 4 = 2$
+\bigskip
+\item{4.} Since $a \equiv b \pmod m$,
+$a = b + sm$ for some integer $s$.
+Similarly, since $c \equiv d \pmod m$,
+$c = d + tm$ for some integer $t$.
+\medskip
+\item{} a. $a + c = (b + sm) + (d + tm) = (b + d) + (s + t)m$,
+so $a + c \equiv b + d \pmod m$, as desired.
+\medskip
+\item{} b. $ad = (b + sm)(c - tm) = bc + (cs - bt - stm)m$,
+so $ad \equiv bc \pmod m$, as desired.
+\medskip
+\item{} c. $ax + cy = (b + sm)x + (d + tm)y = bx + dy + (sx + ty)m$,
+so $ax + cy \equiv bx + dy \pmod m$, as desired.
+\medskip
+\item{} d. $a^k = (b + sm)^k = \sum _{n=0}^k {k \choose n}b^{k-n}(sm)^k
+= b^k + m\sum _{n=1}^{k} {k \choose n}b^k s^k m^{k-1}$,
+so $a^k \equiv b^k \pmod m$, as desired.
+\bigskip
+\item{5.} The string ``howareyou'' encrypts to ``qznhobxzd''.
+The decryption function is $21x + 9 \pmod{26}$,
+which is $5^{-1}(x - 7)$ with some simplification.
+\bigskip
+\item{6.} Since h maps to c, we have $7x + b \equiv 2 \pmod{26}$,
+and since a maps to r, we have $0x + b \equiv 17 \pmod{26}$.
+We immediately have $b = 17$, and plugging into the first congruence,
+we have $a = 9$.
+Inverting the encryption function, we see that the plaintext is happy.
+\bigskip
+\item{7.} ``After detailed storyboarding, set and plasticine model
+construction, the movie's shot one frame at a time, moving the models
+of the characters slightly to give the impression of movement
+in the final film.''
+\medskip
+We can guess that the common three-letter word is ``the,''
+giving us a few letters of the plaintext.
+We then see the ``a'' in ``at a'', which leads to the phrase
+``at a time,'' after which we have enough of the plaintext
+to easily guess letters until we have decrypted the whole passage.
+\bye
