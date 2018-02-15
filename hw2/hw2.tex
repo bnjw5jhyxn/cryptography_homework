@@ -1,0 +1,95 @@
+\centerline{Steve Hsu\hfill homework 2}
+\item{1.} a.
+
+$$\eqalign{
+101 &= 7(13) + 10\cr
+13 &= 10 + 3\cr
+10 &= 3(3) + 1\cr
+3 &= 3(1)\cr
+}$$
+$\gcd (13, 101) = 1$
+
+$1 = 10 - 3(3) = 10 - 3(13 - 10) = 10 - 3(13) + 3(10) =
+4(10) - 3(13) = 4(101 - 7(13)) - 3(13) = 4(101) - 31(13)$
+
+$x = -31, y = 4$
+\medskip
+\item{} b.
+
+Since $31(13) \equiv 1 \pmod {101}$, $31 = 13^{-1} \pmod {101}$.
+\bigskip
+\item{2.}
+$$\eqalign{
+78192 &= 55931 + 22261\cr
+55931 &= 2(22261) + 11409\cr
+22261 &= 11409 + 10852\cr
+11409 &= 10852 + 557\cr
+10852 &= 19(557) + 269\cr
+557 &= 2(269) + 19\cr
+269 &= 14(19) + 3\cr
+19 &= 6(3) + 1\cr
+3 &= 3(1)\cr
+}$$
+$\gcd (78192, 55931) = 1$
+
+$1 = 19 - 6(3) = 19 - 6(269 - 14(19)) = 85(19) - 6(269) =
+85(557 - 2(269)) - 6(269) = 85(557) - 176(269) =
+85(557) - 176(10852 - 19(557)) = 3429(557) - 176(10852) =
+3429(11409 - 10852) - 176(10852) = 3429(11409) - 3605(10852) =
+3429(11409) - 3605(22261 - 11409) = 7034(11409) - 3605(22261) =
+7034(55931 - 2(22261)) - 3605(22261) = 7034(55931) - 17673(22261) =
+7034(55931) - 17673(78192 - 55931) = 24707(55931) - 17673(78192)$
+
+$x = -17673, y = 24707$
+\bigskip
+\item{3.} 
+$$\eqalign{
+4883 &= 4369 + 514\cr
+4369 &= 8(514) + 257\cr
+514 &= 2(257)\cr
+}$$
+$\gcd (4883, 4369) = 257$
+
+$4883 = (19)(257), 4369 = (17)(257)$
+\bigskip
+\item{4.}
+$$\eqalign{
+10037 &= 13(743) + 378\cr
+743 &= 378 + 365\cr
+378 &= 365 + 13\cr
+365 &= 28(13) + 1\cr
+13 &= 13(1)\cr
+}$$
+$1 = 365 - 28(13) = 365 - 28(378 - 365) = 29(365) - 28(378) =
+29(743 - 378) - 28(378) = 29(743) - 57(378) =
+29(743) - 57(10037 - 13(743)) = 770(743) - 57(10037)$
+
+$770 \equiv 743^{-1} \pmod {10037}$
+\bigskip
+\item{5.}
+$$\eqalign{
+7^2 &\equiv 49 \equiv 7 \pmod {21}\cr
+7^4 &\equiv (7^2)^2 \equiv 7^2 \equiv 7 \pmod {21}\cr
+7^8 &\equiv (7^4)^2 \equiv 7^2 \equiv 7 \pmod {21}\cr
+7^{16} &\equiv (7^8)^2 \equiv 7^2 \equiv 7 \pmod {21}\cr
+7^{32} &\equiv (7^{16})^2 \equiv 7^2 \equiv 7 \pmod {21}\cr
+7^{64} &\equiv (7^{32})^2 \equiv 7^2 \equiv 7 \pmod {21}\cr
+7^{128} &\equiv (7^{64})^2 \equiv 7^2 \equiv 7 \pmod {21}\cr
+}$$
+$7^{138} \equiv (7^{128})(7^8)(7^2) \equiv (7)(7)(7) \equiv (7)(7) \equiv 7 \pmod {21}$
+\bigskip
+\item{6.}
+\proclaim Claim. If $p$ and $q$ are prime, then $\phi (pq) = (p - 1)(q - 1)$.
+
+There is a total of $pq$ natural numbers less than or equal to $pq$.
+Of these, $q$ integers ($p, 2p, \cdots, qp$) are multiples of $p$ and
+$p$ integers ($q, 2q, \cdots, pq$) are multiples of $q$.
+Only one ($pq$) is a multiple of both.
+Since all integers except multiples of $p$ are relatively prime to $p$,
+$\phi (pq) = pq - (p + q - 1) = (p - 1)(q - 1)$, as desired.
+\bigskip
+\item{7.}
+
+Let $p = 4$ and $a = 3$.
+Then $a^{p - 1} \equiv 3^{4 - 1} \equiv 3^3 \equiv 27 \equiv 3 \pmod 4$.
+\bye
