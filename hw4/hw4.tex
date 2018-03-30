@@ -1,0 +1,70 @@
+\centerline{Steve Hsu\hfill homework 4}
+\item{1.}
+
+Let $r_1 = \max \{n, p\}$ and $r_2 = \min \{n, p\}$.
+Given $r_k$ and $r_{k+1}$, we want to find $q_{k+2}$ and $r_{k+2}$ such that
+$r_{k+2} < r_{k+1}$ and $r_k = q_{k+2} r_{k+1} + r_{k+2}$.
+Notice that if $r_{k+1} \le {1 \over 2} r_k$, then since $r_{k+2} < r_{k+1}$,
+we have that $r_{k+2} < {1 \over 2} r_k$.
+If $r_{k+1} > {1 \over 2} r_k$, then since $r_{k+2} < r_k - r_{k+1}$,
+we have that $r_{k+2} < {1 \over 2} r_k$.
+Therefore, it takes at most $2 \log r_1 = 2k$ steps
+for Euclid's algorithm to terminate.
+At each step, the algorithm performs one division
+in order to calculate $q_{k+2}$ and $r_{k+2}$
+and performs two multiplications and two additions to write
+$r_{k+2}$ as linear combinations of $n$ and $p$ given the expressions of
+$r_k$ and $r_{k+1}$ as linear combinations of $n$ and $p$.
+Therefore, the algorithm takes $O(2k(2k^2 + 2k)) = O(k^3)$ time in total.
+\bigskip
+\item{2.}
+
+Alice creates a public key $e$ and a private key $d$
+such that $d \equiv e^{-1} \pmod{(p - 1)(q - 1)}$.
+Take $e = 4783$ and $d = 2383$.
+Bob encrypts the message, $m = 1231$,
+by raising it to the power of $e \pmod{pq}$.
+In this case, he gets $m^e \equiv 1231^{4783} \equiv 4032 \pmod{pq}$.
+Alice decrypts the message by raising the encrypted message
+to the power $d \pmod{pq}$,
+obtaining $m^{ed} \equiv 4032^{2383} \equiv 1231 \pmod{pq}$
+and recovering Bob's message.
+\bigskip
+\item{3.}
+
+Since $2491 - 1 = 2490 = 2(1245)$,
+a Miller-Rabin witness for the compositeness of $2491$
+is an integer $a$ such that $\gcd (a, n) = 1$ and
+$a^{1245} \not\equiv -1 \pmod{2490}$.
+Since $2^{1245} \equiv 2405 \pmod{2490}$,
+we have that $2$ is a Miller-Rabin witness for the compositeness of $2491$.
+(We don't need to check $2^{2490}$ since if it is $1 \pmod{2491}$,
+then we saw a $1$ before a $-1$ and $2491$ is composite.
+If it isn't $1 \pmod{2491}$, then $2$ is a Fermat witness for
+the compositeness of $2491$.)
+\bigskip
+\item{4.}
+
+If $\gcd (a, 3) = 1$, then by Fermat's Little Theorem,
+we have that $a^{561} \equiv (a^{2})^{280} a \equiv 1^{280} a \equiv a \pmod 3$.
+Otherwise, $\gcd (a, 3) = 3$, so $a \equiv 0 \pmod 3$ and
+$a^{561} \equiv 0 \equiv a \pmod 3$.
+
+If $\gcd (a, 11) = 1$, then by Fermat's Little Theorem,
+we have that $a^{561} \equiv (a^{10})^{56} a \equiv 1^{56} a \equiv a \pmod{11}$.
+Otherwise, $\gcd (a, 11) = 11$, so $a \equiv 0 \pmod{11}$ and
+$a^{561} \equiv 0 \equiv a \pmod{11}$.
+
+If $\gcd (a, 17) = 1$, then by Fermat's Little Theorem,
+we have that $a^{561} \equiv (a^{16})^{35} a \equiv 1^{35} a \equiv a \pmod{17}$.
+Otherwise, $\gcd (a, 17) = 17$, so $a \equiv 0 \pmod{17}$ and
+$a^{561} \equiv 0 \equiv a \pmod{17}$.
+
+Since $a^{561} \equiv a \pmod 3$, $a^{561} \equiv a \pmod{11}$, and
+$a^{561} \equiv a \pmod{17}$,
+we have that $3 \vert (a^{561} - a)$, $11 \vert (a^{561} - a)$,
+and $17 \vert (a^{561} - a)$.
+By midterm question (5a), it follows that
+$(3)(11)(17) = 561 \vert (a^{561} - a)$, so
+$a^{561} \equiv a \pmod{561}$, as desired.
+\bye
