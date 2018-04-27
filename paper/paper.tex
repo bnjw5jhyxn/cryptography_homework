@@ -1,0 +1,469 @@
+\def\section{\bigskip\noindent\bf}
+\def\natural{{\bf N}}
+\def\integer{{\bf Z}}
+\def\field{{\bf F}}
+\def\lcm{\hbox{\rm lcm}}
+\def\floor#1{\vert#1\vert}
+{\parindent=0pt
+Steve Hsu\par
+Cryptography\par
+Professor Saraf\par
+27 April 2018
+}
+
+\baselineskip=24pt
+\centerline{A Brief Overview of Homomorphic Encryption}
+{\section Examples of Homomorphism in Cryptography}
+
+\proclaim Definition. An encryption function $E$ is {\bf homomorphic}
+with respect to an operation $\cdot$ if there is an operation $\star$
+such that $E(x) \star E(y) = E(x \cdot y)$ for all $x$ and $y$
+in the domain of $E$.
+
+It turns out that RSA is homomorphic with respect to multiplication.
+Let $p$ and $q$ be large primes and let $n = pq$.
+Let $e$ be a public key and let $d = e^{-1} \pmod {(p - 1)(q - 1)}$.
+Let $E : m \mapsto m^e \pmod n$ be the encryption function.
+Notice that the encryption of the product of two messages is
+$E(m_1) E(m_2) = m_1 ^e \pmod p m_2 ^e \pmod p = (m_1 m_2) ^e \pmod p = E(m_1 m_2)$.
+Here, $\cdot$ and $\star$ are both multiplication modulo $n$.
+
+As we will see in the coming sections,
+homomorphism is an interesting property
+that is present in many encryption schemes.
+
+The ElGamal cryptosystem, commonly used to encrypt symmetric keys used in other cryptosystems,
+is also homomorphic.
+In this system, Alice generates a key pair by first defining a group $G$.
+For the rest of this description, we will refer to the group operation as ``multiplication.''
+This group must be cyclic (there should be an element $g \in G$
+such that $G = \{g^n : n \in \natural\}$).
+Let $q$ be the order of $G$.
+Alice's private key is a uniformly element $x \in [q - 1]$,
+where $[n] = \{1, 2, \ldots, n\}$.
+Alice's public key is $(G, q, g, h)$, where $h = g^x$.
+
+In order to encrypt a message $m \in G$, Bob first chooses
+a uniformly random element $y \in [q - 1]$,
+which he keeps private, and computes $j = g^y$.
+The encryption function is then $E_y : m \mapsto (j, m h^y)$.
+Notice that $h^y = (g^x)^y = g^{xy}$.
+In order to decrypt the message, Alice then applies the decryption function
+$D : (j, c) \mapsto c j^{-x}$.
+This procedure recovers $m$ because
+$c j^{-x} = m g^{xy} j^{-x} = m g^{xy} g^{-yx} = m$.
+
+As in RSA, we can efficiently compute these quantities
+efficiently using fast exponentiation.
+The security of the ElGamal system relies on an attacker's inability
+to compute $g^{xy}$ given $h = g^x$ and $j = g^y$,
+which are both transmitted and therefore publicly known.
+If $G = \field _p ^\times = [p - 1]$ under multiplication modulo $p$,
+then this problem is equivalent to the discrete log problem.
+
+Define $(a,b) \star (c,d)$ to be $(ab, cd)$.
+Notice that
+$$\eqalign{
+E_{y_1} (m_1) \star E_{y_2} (m_2) &= (g^{y_1}, m_1 h^{y_1}) \star (g^{y_2}, m_2 h^{y_2})\cr
+&= (g^{y_1} g^{y^2}, m_1 m_2 h^{y_1} h^{y^2})\cr
+&= (g^{y_1 + y_2}, m_1 m_2 h^{y_1 + y^2})\cr
+&= E_{y_1 + y_2} (m_1 m_2)\cr
+}$$
+so the ElGamal cryptosystem is homomorphic with respect to multiplication.
+
+{\section Cryptographic Voting}
+
+Imagine that we attempt to conduct an election by sending ballots
+through an insecure system to an election authority that then counts them
+and publishes the result in a publicly verifiable way
+without revealing the contents of the individual ballots.
+
+The Paillier cryptosystem is suitable for this purpose.
+Alice produces two large primes $p$ and $q$
+with a special property.
+Let $n = pq$ and let $\phi (n) = (p - 1)(q - 1)$ be the totient of $n$.
+We require that $\gcd (n, \phi (n)) = 1$.
+Let $\lambda = \lcm (p - 1, q - 1)$.
+Let $g$ be a random element of $\integer _{n^2} ^\times$,
+where $\integer _{n^2} ^\times$ is the subset of $[n^2]$
+consisting of those numbers with multiplicative inverses modulo $n^2$.
+Define the function $L : x \mapsto \floor{(x - 1) / n}$.
+We need $g$ to be such that
+$\mu = (L(g^\lambda \bmod n^2))^{-1} \pmod n$ exists.
+The public key is the pair $(n, g)$ and
+the private key is the pair $(\lambda, \mu)$.
+
+In order to encrypt a message $m$,
+Bob selects a random element $r \in [n - 1]$.
+The encryption function is $E_r : m \mapsto g^m r^n \pmod{n^2}$
+and the decryption function is $D : c \mapsto L(c^\lambda \bmod n^2) \mu \pmod n$.
+Paillier gives in his paper a detailed proof that $D$ recovers $m$.
+This proof establishes a relationship between the function $L$
+and the discrete logarithm base $1 + n$ modulo $n^2$.
+We are interested in the homomorphism of $E$ with respect to addition.
+Notice that
+$$\eqalign{
+E_{r_1} (m_1) E_{r_2} (m_2) &= g^{m_1} r_1 ^n g^{m_2} r_2 ^n \pmod n^2\cr
+&= g^{m_1 + m_2} (r_1 r_2)^n \pmod n^2\cr
+&= E_{r_1 r_2} (m_1 + m_2)\cr
+}$$
+
+Danny, who gave a lecture to the cryptography class at Rutgers
+on May 20, 2018, presented an application of the Paillier system
+to secure voting.
+In order to run an election, an election authority can create a key pair.
+If the ballot has $p$ options, then the bit representation of each vote
+can be divided into $p + 2$ segments.
+The first segment contains some zeros,
+the second segment contains some random bits,
+and each of the other $p$ sections contains either $1$ or $0$,
+depending on whether the voter voted for option $p$.
+The voter selects a value of $r$ at random
+and applies $E_r$ to the ballot, then publishes the encrypted ballot.
+The public can then multiply all of the encrypted ballots together
+to obtain an encryption of the sum of the votes.
+The election authority can decrypt this sum and publish the result of the election,
+which the public can check to make sure that it encrypts to the encrypted sum.
+Notice that the decryption function does not depend on $r$,
+so there is no need to compute the product of the voters' values of $r$.
+If the validity of a ballot is in question,
+then the election authority can decrypt it.
+The public can verify that the ballot is invalid if
+the voter publishes his or her value of $r$ along with the decrypted ballot.
+
+{\section Yao's Millionaire Problem}
+
+Imagine that two millionaires are bragging about their wealth
+and want to find out which of them is wealthier.
+Unfortunately, stating their net worth could leak business secrets,
+so they want to make the comparison without revealing their exact wealth.
+Hsiao-Ying Lin and Wen-Guey Tzeng give a solution that uses homomorphic encryption.
+
+Let $a$ and $b$ be binary representations the wealth of the two people
+padded with leading zeroes so that they are the same length.
+Given a bit-string $x = x_n x_{n-1} \cdots x_0$, we define the set
+$S_x ^1 = \{x_n x_{n-1} \cdots x_{i+1} 1 : x_i = 1\}$ and
+$S_x ^0 = \{x_n x_{n-1} \cdots x_{i+1} 1 : x_i = 0\}$.
+
+\proclaim Claim. $a > b$ if and only if $S_a ^1 \cap S_b ^0 \ne \emptyset$.
+
+$(\Rightarrow)$ Assume that $a > b$.
+Then at the first point of difference between the binary representations
+of $a$ and $b$ is an index $i$ such that $a_i = 1$ and $b_i = 0$.
+By definition, $a_n a_{n-1} \cdots a_{i+1} 1 \in S_a ^1$ and
+$b_n b_{n-1} \cdots b_{i+1} 1 \in S_b ^0$.
+Since index $i$ is the first point of difference,
+we have that $a_j = b_j$ for all $j$ such that $j > i$.
+Therefore, $a_n \cdots a_{i+1} 1 = b_n \dots b_{i+1} 1$
+and the intersection is nonempty.
+
+$(\Leftarrow)$ Assume that $S_a ^1 \cap S_b ^0 \ne \emptyset$.
+Take some string $x_n x_{n-1} \cdots x_{i+1} 1$ contained in the intersection.
+Since the string is a member of $S_a ^1$, we have that
+$x_n \cdots x_{i+1} 1$ is a prefix of $a$ and
+$x_n \cdots x_{i+1} 0$ is a prefix of $b$.
+Clearly, $a > b$.
+
+We have now reduced the problem to finding out if two sets
+have a nonempty intersection without exposing the contents of the sets.
+We can do this with ElGamal, which is multiplicatively homomorphic.
+Alice creates a key pair, then constructs a $2 \times n$ table $T$
+with the following property.
+If $a_i = 0$, then $T[0, i] = E_{y_1} (1)$, where $1$ is the identity element of $G$,
+for a randomly selected $y_1$ and
+$T[1, i] = E_{y_2} (r)$ for randomly selected $y_2$ and $r$.
+Notice that in this case, she can simply choose a random pair $(g_1, g_2) \in G^2$.
+If $a_i = 1$, then $T[0, i] = E_{y_1} (r)$ and $T[1, i] = E_{y_2} (1)$.
+
+Alice then sends the table to Bob.
+For each string $t = t_n t_{n-1} \cdots t_i \in S_b ^0$,
+Bob computes $c_t = T[t_n, n] \star T[t_{n-1}, n-1] \star \cdots \star T[t_i, i]$.
+Notice that if $t \in S_a ^1$, then $c_t = E_y (1)$ for some $y$ and
+if $t \notin S_a ^1$, then $c_t$ is a random pair $(g_1, g_2)$.
+Bob then raises each $c_t$ to a random power $k_t$
+so that Alice cannot deduce which table entries
+were starred together to produce the $c_i$'s.
+He then produces enough random pairs so that there is a total of $n$ pairs,
+which he then sends to Alice.
+Alice then decrypts the $n$ pairs and sees if any of them are $1$.
+If there is no $1$, then the intersection of $S_a ^1$ and $S_b ^0$ is empty
+and hence $a \le b$.
+If there is a $1$, then as long as $G$ is sufficiently large,
+there is a high probability that the intersection is nonempty
+and hence $a > b$.
+
+{\section Other Desirable Applications}
+
+In 1978, Rivest, Adelman, and Dertouzos conjectured that
+a fully homomorphic encryption scheme,
+which should be homomorphic with respect to both addition and multiplication,
+should exist.
+They give some examples of homomorphic schemes with weak security
+and describe a potential application of fully homomorphic encryption.
+
+In their example, a bank wants to hire an outside company to manage its database of records.
+Since these records are confidential, the bank needs the records to be encrypted.
+On the other hand, the bank also wants to be able to make useful queries
+to the database without having to download the entire database every time
+(otherwise, it might as well keep the database in-house).
+Homomorphic encryption of the data would help here
+because the bank can request, for example, the sum of all account balances.
+The database can then simply perform the corresponding operation on the encrypted data
+and send the result back to the bank.
+Additionally, the bank also wants to search in the encrypted database.
+In this case, the bank expresses its query as a circuit
+and sends the circuit, as well as the encryption of the desired output, to the database,
+which performs the relevant operations and returns
+the desired documents to the bank.
+
+{\section Yao's Garbled Circuit}
+
+Andrew Yao, who described the millionaires' problem above,
+also created a system for arbitrary garbled circuit computation.
+In this situation, Alice has a function she wants to compute
+and Bob has computing resources available.
+Alice wants Bob to perform the computation in such a way
+that he cannot find unencrypted inputs or outputs of the function.
+Yao gives a solution, but unfortunately,
+this system requires transmitting information proportional to the size of the circuit.
+Since the circuit must be large enough to process all of Alice's data,
+Alice can use the same computational power by downloading
+her data and performing the computation herself.
+
+His solution does, however, use an interesting procedure for the exchange of secret bits
+called oblivious transfer, described by Michael Rabin.
+This procedure avoids the problem of someone having to give his or her bit first
+by allowing Alice to deduce Bob's secret from the fact that Bob knows Alice's secret.
+We must, however, make the assumption that if Alice or Bob uses
+the secret bit, the other person will know.
+In his example, Rabin imagines that the secret bits are
+the passwords for files and that Alice and Bob will be notified if
+the other person's file is opened.
+
+Let $s_a$ be the bit in Alice's possession and let $s_b$ be the bit in Bob's possession.
+Alice picks two large random primes $p$ and $q$ and sends $n = pq$ to Bob.
+Bob then picks a random number $x$ and sends $c \equiv x^2 \pmod n$ to Alice.
+Since Alice can factor $n$, she can compute a square root of $c$ modulo $n$.
+She sends one such square root $x_1$ to Bob.
+If $x_1 \equiv \pm x \pmod n$, then Bob does not gain any information.
+Otherwise, $\gcd (x - x_1, n)$ is either $p$ or $q$,
+so Bob can now factor $n$.
+Bob computes $y = s_b \oplus v$, where $v = 0$
+if he knows the factorization of $n$ and $1$ otherwise.
+Alice selects a large random string and sets the middle bit to $s_a$.
+She encrypts this string using RSA and sends the result to Bob.
+
+If Bob can factor $n$, then he knows Alice's private key
+and simply decrypts Alice's message,
+then uses $s_b$, revealing to Alice that he knows $s_a$.
+Alice then knows that $y = s_b$.
+The problem is that if Bob cannot factor $n$,
+then Alice knows that $s_b = \overline y$, but Bob does not know $s_a$.
+We can fix this problem by having Alice and Bob do the procedure above simultaneously.
+This way, if at least one of them has the other's private keys,
+then they both will know the secret bits by the reasoning above.
+Otherwise, they will simply flip $y_a$ and $y_b$ to obtain the secrets.
+
+{\section The Sander-Young-Yung System}
+
+After Rivest, Adleman, and Dertouzos conjectured about the existence
+of fully homomorphic encryption schemes than are secure and
+allow the computation of encryptions of sums and products in polynomial time,
+it was an open question until Gentry's work in 2009.
+During this time, several groups made progress toward a solution.
+In 1991, Tomas Sander, Adam Young, and Moti Yung produced a solution
+for logarithmic depth circuits.
+In their model, Alice has an input $x$ and Bob has a circuit $C$.
+Let $E$ be an encryption function.
+We want Bob to compute $E(C(x))$ without giving Bob information about $x$
+or Alice information about $C$.
+
+The solution revolves around ``inattentive evaluation if circuits,''
+in which computation is performed relies on an additive homomorphism
+and does not require knowledge of the plaintext values of the inputs.
+We do this by representing the output of a bit operation as a tuple of four bits.
+For example, $x \vee y$ is represented as $(x, y, x + y, 1)$.
+Notice that if $x \equiv 1 \pmod 2$ or $y \equiv 1 \pmod 2$,
+then the resulting tuple has three $1$'s and one $0$.
+If $x \equiv y \equiv 0 \pmod 2$, then the resulting tuple
+has three $0$'s and one $1$.
+The OR gate can then return a random permutation if this tuple.
+Alice then recovers the result by decrypting each element of the tuple
+and seeing whether $0$ or $1$ appears three times.
+We have therefore made progress toward extending additive homomorphism
+to homomorphism with respect to bitwise OR.
+Sander et al.~further extend this concept to other operations.
+
+{\section The Boneh-Goh-Nissim Cryptosystem}
+
+In 2006, Dan Boneh, Eu-Jin Goh, and Kobbi Nissim
+give a system that bears some resemblance to the Paillier cryptosystem
+and allows homomorphic encryption of 2-DNF formulas,
+giving homomorphism under arbitrary additions and up to one multiplication.
+
+The security of their scheme depends on the hardness of the subgroup decision problem.
+Let $q_1$ and $q_2$ be random primes.
+Let $G$ and $G_1$ be two cyclic groups of order $n = q_1 q_2$.
+Let $g$ be a generator of $G$.
+Let $e : G \times G \to G_1$ be a bilinear function, that is,
+for any integers $a$ and $b$ and any elements $u$ and $v$ of $G$,
+$e(u^a, v^b) = e(u, v)^{ab}$.
+Additionally, $e$ must be such that $e(g,g)$ is a generator of $G_1$.
+Given $n$, $G$, $G_1$, $e$, and an element $x$ of $G$,
+is there a subgroup of $G$ containing $x$?
+
+In order to create a key pair,
+Alice selects two random generators $g$ and $u$ of $G$
+and takes $h = u^{q_2}$.
+Notice that $h$ generates a subgroup of $G$ of order $q_1$.
+Alice publishes $G$, $G_1$, $e$, $n$, $g$, and $h$ as the public key
+and keeps $q_1$ as the private key.
+We can encrypt a message $m \in \{0,1,\ldots,T\}$, where $T < q_2$.
+The encryption function is $E_r : m \mapsto g^m h^r$,
+where $r$ is chosen at random from $\integer _n$.
+The decryption function is $D : c \mapsto c^{q_1}$.
+This function helps to recover $m$ because
+$c^{q_1} = (g^m h^r)^{q_1} = g^{q_1 m} h^{q_1 r} = g^{q_1 m} 1^r = g^{q_1 m}$.
+Completing the decryption requires finding
+the discrete logarithm of $g^{q_1 m}$ base $g^{q_1}$.
+This can be done in $O(\sqrt T)$ time.
+Notice that we can only encrypt short messages with this system.
+
+Since
+$$\eqalign{
+E_{r_1} (m_1) E_{r_2} (m_2) &= g^{m_1} h^{r_1} g^{m_2} h^{r_2}\cr
+&= g^{m_1 + m_2} h^{r_1 + r_2}\cr
+&= E_{r_1 + r_2} (m_1 + m_2)\cr
+}$$
+the system is additively homomorphic.
+Notice that this property holds in $G_1$ as well.
+
+To allow one multiplication,
+take $g_1 = e(g,g)$ and $h_1 = e(g,h)$.
+Since $e$ is bilinear, we have that $g_1$ generates $G_1$
+and $h_1$ has order $q_1$.
+Notice that since $g$ is a generator of $G$, there is some integer $\alpha$
+such that $g^\alpha = u$.
+Therefore, $h = u^{q_2} = g^{\alpha q^2}$.
+In order to obtain an encryption of $m_1 m_2$ given encryptions $c_1$ and $c_2$
+of $m_1$ and $m_2$, respectively, take a random $r \in \integer _n$ and set
+$$\eqalign{
+c &= e(c_1, c_2) h_1 ^r\cr
+&= e(g^{m_1} h^{r_1}, g^{m_2} h^{r_2}) h_1 ^r\cr
+&= e(g^{m_1} g^{\alpha q_2 r_1}, g^{m_2} g^{\alpha q_2 r_2}) h_1 ^r\cr
+&= e(g^{m_1 + \alpha q_2 r_1}, g^{m_2 + \alpha q_2 r_2}), h_1 ^r\cr
+&= e(g,g)^{(m_1 + \alpha q_2 r_1)(m_2 + \alpha q_2 r_2)} h_1 ^r\cr
+&= g_1^{m_1 m_2 + m_1 \alpha q_2 r_2 + m_2 \alpha q_2 r_1 + \alpha ^2 q_2 ^2 r_1 r_2} h_1 ^r\cr
+&= g_1^{m_1 m_2} g_1^{m_1 \alpha q_2 r_2} g_1^{m_2 \alpha q_2 r_1} g_1^{\alpha ^2 q_2^2 r_1 r_2} h_1 ^r\cr
+&= g_1^{m_1 m_2} h_1^{m_1 r_2} h_1^{m_2 r_1} h_1^{\alpha q_2 r_1 r_2} h_1 ^r\cr
+&= g_1^{m_1 m_2} h_1^{m_1 r_2 + m_2 r_1 + \alpha q_2 r_1 r_2 + r}\cr
+}$$
+
+{\section The Ishai-Paskin Cryptosystem}
+
+In 2007, Yuval Ishai and Anat Paskin constructed a homomorphic
+encryption scheme that allows evaluation of branching programs.
+In this solution, they develop a variant of oblivious transfer
+called ``strong oblivious transfer.''
+
+{\section Gentry's Cryptosystem}
+
+In 2009, Craig Gentry creates the first secure,
+fully homomorphic encryption scheme that allows
+computation of the encryption of arbitrary sums and products
+in polynomial time.
+A major innovation in his paper
+is his quantification of ``noise'' in ciphertexts,
+which grows as more operations are performed on them.
+He gives a ``bootstrapping operation'' that reduces noise,
+allowing a scheme that supports a limited number of operations
+to support an arbitrary number of operations.
+The security of the original version of his scheme
+relies on the hardness of problems related to ideal lattices.
+
+{\section Improvements and Implementations for Gentry's Cryptosystem}
+
+While Gentry's solution is polynomial-time computable,
+the large constant factor inhibited practical use at first.
+When Gentry and Shai Halevi implemented his scheme in 2010,
+they found that a single bootstrapping operation
+could take up to thirty minutes, depending on the size of the public key.
+
+In addition, there have also been schemes proposed that build on the work
+of Gentry's 2009 paper.
+Shai Halevi and Victor Shoup continue to work on an implementation
+of one such scheme, by Zvika Brakerski, Craig Gentry, and Vinod Vaikuntanathan.
+
+\bigskip
+\centerline{Works Cited}
+\everypar{\hangindent=20pt}
+\parindent=0pt
+
+Dan Boneh, Eu-Jin Goh, and Kobbi Nissim.
+{\sl Evaluating 2-DNF Formulas on Ciphertexts}
+Theory of Cryptography Conference.
+2006.
+
+Zvika Brakerski, Craig Gentry, and Vinod Vaikuntanathan.
+{\sl Fully Homomorphic Encryption without Bootstrapping.}
+Innovations in Theoretical Computer Science.
+2011.
+
+Taher ElGamal.
+{\sl A Public Key Cryptosystem and a Signature Scheme Based on Discrete Logarithms.}
+IEEE Transactions on Information Theory, Vol. IT-31, No. 4.
+July 1985.
+
+Craig Gentry.
+{\sl A Fully Homomorphic Encryption Scheme (Ph.D. Thesis).}
+2009.
+
+Craig Gentry and Shai Halevi.
+{\sl Implementing Gentry's Fully Homomorphic Encryption Scheme.}
+EUROCRYPT.
+2011.
+
+Shai Halevi and Victor Shoup.
+{\sl HElib: an Implementation of homomorphic encryption.}
+https://github.com/shaih/HElib.
+2018.
+
+Yuval Ishai and Anat Paskin.
+{\sl Evaluating Branching Programs on Encrypted Data.}
+Theory of Cryptography Conference.
+2007.
+
+Hsiao-Ying Lin and Wen-Guey Tzeng.
+{\sl An Efficient Solution to The Millionaires' Problem Based on Homomorphic Encryption.}
+ACNS 2005.
+
+Pascal Paillier.
+{\sl Public-Key Cryptosystems Based on Composite Degree Residuosity Classes.}
+Advances in Cryptography --- EUROCRYPT '99. pages 223--238.
+EUROCRYPT 1999.
+Lecture Notes in Computer Science, Vol. 1952. Springer, Berlin, Heidelberg.
+
+Michael O. Rabin.
+{\sl How to exchange secrets by oblivious transfer.}
+Technical Report TR-81, Aiken Computation Laboratory, Harvard University.
+1981.
+
+Ronald L. Rivest, Len Adleman, and Michael L. Dertouzos.
+{\sl On data banks and privacy homomorphisms.}
+Foundations of Secure Computation.
+1978.
+
+Tomas Sander, Adam Young, and Moti Yung.
+{\sl Non-Interactive Crypto Computing for {\it NC}${}^1$.}
+32nd Annual IEEE Conference on Foundations of Computer Science.
+October 1991.
+
+Andrew Chi-chih Yao.
+{\sl How to generate and exchange secrets.}
+27th Annual IEEE Symposium on Foundations of Computer Science.
+1986.
+
+Danny the substitute lecturer.
+Cryptography (Math 348) course at Rutgers University.
+Spring 2018.
+\bye
